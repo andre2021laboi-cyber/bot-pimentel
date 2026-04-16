@@ -2294,3 +2294,48 @@ app.listen(PORT, () => {
 });
 
 client.login(process.env.TOKEN);
+const axios = require('axios');
+
+const VTLOG_TOKEN = process.env.VTLOG_TOKEN;
+
+async function buscarVTLog(username) {
+  try {
+    const res = await axios.get(`https://api.vtlog.net/v3/users?search=${username}`, {
+      headers: {
+        Authorization: `Bearer ${VTLOG_TOKEN}`
+      }
+    });
+
+    if (!res.data || res.data.length === 0) return null;
+
+    return res.data[0];
+  } catch (err) {
+    console.log("Erro VTLOG:", err.message);
+    return null;
+  }
+}
+client.on('messageCreate', async (message) => {
+  if (message.content.startsWith('!vtlog')) {
+
+    const user = message.content.split(' ')[1];
+
+    if (!user) {
+      return message.reply("Use: !vtlog SEU_USUARIO");
+    }
+
+    const dados = await buscarVTLog(user);
+
+    if (!dados) {
+      return message.reply("Usuário não encontrado no VTLog");
+    }
+
+    message.reply(`
+🚛 VTLOG
+
+👤 Nome: ${dados.username}
+📦 Entregas: ${dados.stats?.deliveries || 0}
+📏 KM: ${dados.stats?.distance || 0}
+⭐ Rating: ${dados.stats?.rating || 0}
+    `);
+  }
+});
