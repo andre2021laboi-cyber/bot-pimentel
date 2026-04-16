@@ -1,4 +1,24 @@
 require('dotenv').config();
+const axios = require('axios');
+
+const VTLOG_TOKEN = process.env.VTLOG_TOKEN;
+
+async function buscarVTLogSimples(username) {
+  try {
+    const res = await axios.get(`https://api.vtlog.net/v3/users?search=${username}`, {
+      headers: {
+        Authorization: `Bearer ${VTLOG_TOKEN}`
+      }
+    });
+
+    if (!res.data || res.data.length === 0) return null;
+
+    return res.data[0];
+  } catch (err) {
+    console.log("Erro VTLOG:", err.message);
+    return null;
+  }
+}
 
 const express = require('express');
 const crypto = require('crypto');
