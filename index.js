@@ -2359,3 +2359,30 @@ client.on('messageCreate', async (message) => {
     `);
   }
 });
+
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+
+  if (message.content.startsWith('!vtlog')) {
+    const user = message.content.split(' ')[1];
+
+    if (!user) {
+      return message.reply("Use: !vtlog SEU_USUARIO");
+    }
+
+    const dados = await buscarVTLogSimples(user);
+
+    if (!dados) {
+      return message.reply("Usuário não encontrado no VTLog");
+    }
+
+    return message.reply(`
+🚛 VTLOG
+
+👤 Nome: ${dados.username}
+📦 Entregas: ${dados.stats?.deliveries || 0}
+📏 KM: ${dados.stats?.distance || 0}
+⭐ Rating: ${dados.stats?.rating || 0}
+    `);
+  }
+});
